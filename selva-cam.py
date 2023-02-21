@@ -24,9 +24,10 @@ bisel_agarre = 1.4
 alto_agarre = alto_cubre_papel + bisel_agarre
 sobre_agarre = bisel_agarre
 
+ancho_placa_foto = lado_foto+borde_foto*2+lado_agarre*2
 def placa_foto():
     return (cq.Workplane()
-              .rect(lado_foto*2+borde_foto*3,lado_foto+borde_foto*2+lado_agarre*2)
+              .rect(lado_foto*2+borde_foto*3,ancho_placa_foto)
               .extrude(a_placa_foto)
               .faces("<Z").edges("|X")
               .chamfer(bisel_agarre)
@@ -95,7 +96,33 @@ def cortina():
              .chamfer(bisel_agarre)
              )
 
+alto_cuerpo = a_placa_foto*4+alto_agarre+sobre_agarre
+largo_cuerpo = lado_foto+borde_foto*2
+def cuerpo():
+    return (cq.Workplane()
+              .box(largo_cuerpo,
+                   lado_foto+borde_foto*2+lado_agarre*4,
+                   alto_cuerpo)
+              .edges()
+              .chamfer(bisel_agarre)
+              .faces("<Z")
+              .workplane()
+              .hole(d_exterior_acople)
+              .copyWorkplane(cq.Workplane("YZ"))
+              .vLine(-alto_cuerpo/2+a_placa_foto)
+              .hLine(ancho_placa_foto/2+holgura)
+              .vLine(a_placa_foto+alto_agarre+sobre_agarre-bisel_agarre+holgura)
+              .line(-bisel_agarre,bisel_agarre)
+              .hLine(-lado_agarre+bisel_agarre-holgura)
+              .vLine(alto_agarre-a_placa_foto+bisel_agarre+holgura/2)
+              .hLine(-(lado_foto+borde_foto*2)/2)
+              .mirrorY()
+              .cutThruAll()
+              
+              )
+
 #a=acople().translate([0,0,40])
 p_foto = placa_foto()
 c_papel = cubre_papel().translate([0,0,a_placa_foto+alto_agarre/2])
 cort = cortina().translate([-.25*borde_foto,0,a_placa_foto*2+alto_agarre/2])
+cu = cuerpo().translate([-largo_cuerpo/2,0,alto_cuerpo/2-a_placa_foto])
