@@ -5,14 +5,6 @@ h_acople = 40
 espesor_acople = 3
 d_interior_acople =d_exterior_acople - 2*espesor_acople
 
-def acople():
-    return (cq.Workplane()
-              .circle(radius=d_exterior_acople/2)
-              .extrude(h_acople)
-              .faces(">Z")
-              .hole(diameter=d_interior_acople)
-              )
-
 lado_foto = 50
 borde_foto = 8
 a_placa_foto = 3
@@ -105,9 +97,6 @@ def cuerpo():
                    alto_cuerpo)
               .edges()
               .chamfer(bisel_agarre)
-              .faces("<Z")
-              .workplane()
-              .hole(d_exterior_acople)
               .copyWorkplane(cq.Workplane("YZ"))
               .vLine(-alto_cuerpo/2+a_placa_foto)
               .hLine(ancho_placa_foto/2+holgura)
@@ -118,11 +107,19 @@ def cuerpo():
               .hLine(-(lado_foto+borde_foto*2)/2)
               .mirrorY()
               .cutThruAll()
-              
+              .faces(">Z")
+              .workplane()
+              .circle(d_exterior_acople/2-holgura)
+              .extrude(h_acople)
+              .faces(">Z")
+              .hole(d_exterior_acople-2*espesor_acople)
+              .faces("<Z")
+              .workplane()
+              .rect(lado_foto,lado_foto)
+              .cutBlind(-a_placa_foto)              
               )
 
-#a=acople().translate([0,0,40])
 p_foto = placa_foto()
 c_papel = cubre_papel().translate([0,0,a_placa_foto+alto_agarre/2])
 cort = cortina().translate([-.25*borde_foto,0,a_placa_foto*2+alto_agarre/2])
-cu = cuerpo().translate([-largo_cuerpo/2,0,alto_cuerpo/2-a_placa_foto])
+cu = cuerpo().translate([-largo_cuerpo/2+borde_foto/2,0,alto_cuerpo/2-a_placa_foto])
