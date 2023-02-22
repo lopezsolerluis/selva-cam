@@ -119,7 +119,11 @@ def cuerpo():
               .cutBlind(-a_placa_foto)              
               )
 
-p_foto = placa_foto()
-c_papel = cubre_papel().translate([0,0,a_placa_foto+alto_agarre/2])
-cort = cortina().translate([-.25*borde_foto,0,a_placa_foto*2+alto_agarre/2])
-cu = cuerpo().translate([-largo_cuerpo/2+borde_foto/2,0,alto_cuerpo/2-a_placa_foto])
+asm = cq.Assembly()
+
+asm.add(placa_foto(), name="placa foto", color=cq.Color("red"))
+asm.add(cubre_papel(), name="cubre papel", color=cq.Color("green"), loc=cq.Location(cq.Vector(0,0,a_placa_foto+alto_agarre/2)))
+asm.add(cortina(), name="cortina", color=cq.Color("blue"), loc=cq.Location(cq.Vector(-.25*borde_foto,0,a_placa_foto*2+alto_agarre/2)))
+asm.add(cuerpo(), name="cuerpo", color=cq.Color("orange"), loc=cq.Location(cq.Vector((largo_cuerpo/2-borde_foto/2),0,alto_cuerpo/2-a_placa_foto)))
+
+show_object(asm)
