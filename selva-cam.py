@@ -9,12 +9,13 @@ lado_foto = 50
 borde_foto = 8
 margen_foto = 3
 alto_base = 3
-alto_cubre = alto_base
+alto_cubre = 2.5
 alto_papel = 1
-espesor_garra = 3.5
+espesor_garra = 2.5
 bisel = 1
 espesor_abrazadera = 2
-holgura = .25
+holgura = .2
+ancho_muesca = 10
 
 largo_base = 2*lado_foto+4*borde_foto
 ancho_base_foto = lado_foto+2*borde_foto+2*espesor_garra
@@ -55,25 +56,44 @@ def base_foto():
             .close()
             .mirrorY()
             .extrude(largo_base/2,both=True)
+            .copyWorkplane(cq.Workplane())
+            .workplane(offset=alto_base)
+            .pushPoints([(-largo_base/4,0),(largo_base/4,0)])
+            .rect(ancho_muesca+holgura,ancho_base_foto)
+            .cutBlind(alto_cubre+bisel+holgura)
             )
 
-def cubre(translucido):
+def cubre():
     return (base(alto_cubre,ancho_base_cubre)
             .copyWorkplane(cq.Workplane("YZ"))
-            .split(keepTop=translucido, keepBottom=not translucido)
+            .split(keepTop=True, keepBottom=False)
+            .copyWorkplane(cq.Workplane("YZ"))
+            .workplane(offset=largo_base/4)
+            .center(0,0)
+            .polyline([(-ancho_base_cubre/2+bisel,0),
+                       (-ancho_base_cubre/2+bisel-espesor_garra,0),
+                       (-ancho_base_cubre/2-espesor_garra,bisel),
+                       (-ancho_base_cubre/2-espesor_garra,alto_cubre-bisel),
+                       (-ancho_base_cubre/2-espesor_garra+bisel,alto_cubre),
+                       (-ancho_base_cubre/2+bisel,alto_cubre)
+                       ])
+            .close()
+            .mirrorY()
+            .extrude(ancho_muesca/2-holgura, both=True)            
             )
 
+extra_alto=0
 asm = cq.Assembly()
 
 asm.add(base_foto(), name="base", color=cq.Color("red"))
-asm.add(cubre(translucido=True), name="cubre_translucido",
+asm.add(cubre(), name="cubre_translucido",
         color=cq.Color("green"),
         loc=cq.Location((0,0,0),(1,0,0),180)*
-            cq.Location(cq.Vector(0,0,-(alto_base+alto_cubre))))
-asm.add(cubre(translucido=False), name="cubre_fotografico",
+            cq.Location(cq.Vector(0,0,-(alto_base+alto_cubre+extra_alto))))
+asm.add(cubre(), name="cubre_fotografico",
         color=cq.Color("cyan"),
         loc=cq.Location((0,0,0),(1,0,0),180)*
-            cq.Location(cq.Vector(0,0,-(alto_base+alto_cubre))))
+            cq.Location(cq.Vector(-largo_base/2,0,-(alto_base+alto_cubre+extra_alto))))
 
 
 
@@ -81,3 +101,4 @@ asm.add(cubre(translucido=False), name="cubre_fotografico",
 #asm.add(cuerpo(), name="cuerpo", color=cq.Color("orange"), loc=cq.Location(cq.Vector((largo_cuerpo/2-borde_foto/2),0,alto_cuerpo/2-a_placa_foto)))
 
 show_object(asm)
+# show_object(base_foto())
