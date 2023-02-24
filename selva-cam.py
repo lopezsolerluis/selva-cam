@@ -88,12 +88,10 @@ asm = cq.Assembly()
 asm.add(base_foto(), name="base", color=cq.Color("red"))
 asm.add(cubre(), name="cubre_translucido",
         color=cq.Color("green"),
-        loc=cq.Location((0,0,0),(1,0,0),180)*
-            cq.Location(cq.Vector(0,0,-(alto_base+alto_cubre+extra_alto))))
+        loc=cq.Location(cq.Vector(0,0,alto_base+extra_alto)))
 asm.add(cubre(), name="cubre_fotografico",
         color=cq.Color("cyan"),
-        loc=cq.Location((0,0,0),(1,0,0),180)*
-            cq.Location(cq.Vector(-largo_base/2,0,-(alto_base+alto_cubre+extra_alto))))
+        loc=cq.Location(cq.Vector(-largo_base/2,0,alto_base+extra_alto)))
 
 
 
