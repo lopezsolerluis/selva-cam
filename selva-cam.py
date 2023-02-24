@@ -10,6 +10,7 @@ borde_foto = 8
 margen_foto = 3
 alto_base = 3
 alto_cubre = 2.5
+alto_cortina = 3
 alto_papel = 1
 espesor_garra = 2.5
 bisel = 1
@@ -56,6 +57,7 @@ def base_foto():
             .close()
             .mirrorY()
             .extrude(largo_base/2,both=True)
+            # Huecos muescas
             .copyWorkplane(cq.Workplane())
             .workplane(offset=alto_base)
             .pushPoints([(-largo_base/4,0),(largo_base/4,0)])
@@ -79,7 +81,22 @@ def cubre():
                        ])
             .close()
             .mirrorY()
-            .extrude(ancho_muesca/2-holgura, both=True)            
+            .extrude(ancho_muesca/2-holgura, both=True)
+            # garras
+            .copyWorkplane(cq.Workplane("YZ"))
+            .workplane(offset=largo_base/4)
+            .center(0,alto_cubre)
+            .polyline([(-ancho_base_cubre/2+2*bisel,-bisel),
+                       (-ancho_base_cubre/2+2*bisel,alto_cortina+holgura),
+                       (-ancho_base_cubre/2+2*bisel+bisel,alto_cortina+bisel+holgura),
+                       (-ancho_base_cubre/2+2*bisel+espesor_garra,alto_cortina+bisel+holgura),
+                       (-ancho_base_cubre/2+2*bisel+espesor_garra+bisel-holgura,alto_cortina+holgura),
+                       (-ancho_base_cubre/2+2*bisel+espesor_garra-holgura,alto_cortina+holgura-bisel),
+                       (-ancho_base_cubre/2+2*bisel+espesor_garra-holgura,0)
+                       ])
+            .close()
+            .mirrorY()
+            .extrude(largo_base/4,both=True)
             )
 
 extra_alto=0
