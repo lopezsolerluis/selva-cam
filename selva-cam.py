@@ -15,8 +15,11 @@ alto_papel = 1
 espesor_garra = 2.5
 bisel = 1
 espesor_abrazadera = 2
-holgura = .2
+holgura_justa = .2
+holgura_movil = .3
 ancho_muesca = 10
+borde_caja = 5
+
 
 largo_base = 2*lado_foto+4*borde_foto
 ancho_base_foto = lado_foto+2*borde_foto+2*espesor_garra
@@ -48,12 +51,12 @@ def base_foto():
             .copyWorkplane(cq.Workplane("YZ"))
             .center(0,alto_base)
             .polyline([(-ancho_base_foto/2,-bisel),
-                       (-ancho_base_foto/2,alto_cubre+holgura),
-                       (-ancho_base_foto/2+bisel,alto_cubre+bisel+holgura),
-                       (-ancho_base_foto/2+espesor_garra,alto_cubre+bisel+holgura),
-                       (-ancho_base_foto/2+espesor_garra+bisel-holgura,alto_cubre+holgura),
-                       (-ancho_base_foto/2+espesor_garra-holgura,alto_cubre+holgura-bisel),
-                       (-ancho_base_foto/2+espesor_garra-holgura,0)
+                       (-ancho_base_foto/2,alto_cubre+holgura_justa),
+                       (-ancho_base_foto/2+bisel,alto_cubre+bisel+holgura_justa),
+                       (-ancho_base_foto/2+espesor_garra,alto_cubre+bisel+holgura_justa),
+                       (-ancho_base_foto/2+espesor_garra+bisel-holgura_justa,alto_cubre+holgura_justa),
+                       (-ancho_base_foto/2+espesor_garra-holgura_justa,alto_cubre+holgura_justa-bisel),
+                       (-ancho_base_foto/2+espesor_garra-holgura_justa,0)
                        ])
             .close()
             .mirrorY()
@@ -62,8 +65,8 @@ def base_foto():
             .copyWorkplane(cq.Workplane())
             .workplane(offset=alto_base)
             .pushPoints([(-largo_base/4,0),(largo_base/4,0)])
-            .rect(ancho_muesca+holgura,ancho_base_foto)
-            .cutBlind(alto_cubre+bisel+holgura)
+            .rect(ancho_muesca+holgura_justa,ancho_base_foto)
+            .cutBlind(alto_cubre+bisel+holgura_justa)
             )
 
 def cubre():
@@ -82,18 +85,18 @@ def cubre():
                        ])
             .close()
             .mirrorY()
-            .extrude(ancho_muesca/2-holgura, both=True)
+            .extrude(ancho_muesca/2-holgura_justa, both=True)
             # garras
             .copyWorkplane(cq.Workplane("YZ"))
             .workplane(offset=largo_base/4)
             .center(0,alto_cubre)
             .polyline([(-ancho_base_cubre/2+2*bisel,-bisel),
-                       (-ancho_base_cubre/2+2*bisel,alto_cortina+holgura),
-                       (-ancho_base_cubre/2+2*bisel+bisel,alto_cortina+bisel+holgura),
-                       (-ancho_base_cubre/2+2*bisel+espesor_garra,alto_cortina+bisel+holgura),
-                       (-ancho_base_cubre/2+2*bisel+espesor_garra+bisel-holgura,alto_cortina+holgura),
-                       (-ancho_base_cubre/2+2*bisel+espesor_garra-holgura,alto_cortina+holgura-bisel),
-                       (-ancho_base_cubre/2+2*bisel+espesor_garra-holgura,0)
+                       (-ancho_base_cubre/2+2*bisel,alto_cortina+bisel+holgura_movil),
+                       (-ancho_base_cubre/2+3*bisel,alto_cortina+2*bisel+holgura_movil),
+                       (-ancho_base_cubre/2+3*bisel+espesor_garra,alto_cortina+2*bisel+holgura_movil),
+                       (-ancho_base_cubre/2+4*bisel+espesor_garra-holgura_movil,alto_cortina+bisel+holgura_movil),
+                       (-ancho_base_cubre/2+2*bisel+espesor_garra-holgura_movil,alto_cortina+holgura_movil-bisel),
+                       (-ancho_base_cubre/2+2*bisel+espesor_garra-holgura_movil,0)
                        ])
             .close()
             .mirrorY()
@@ -106,6 +109,34 @@ def cortina():
             .extrude(alto_cortina)
             .edges("|X")
             .chamfer(bisel)
+            )
+ancho_caja = ancho_base_foto + 2*borde_caja
+alto_caja = 2*borde_caja + alto_base + alto_cubre + alto_cortina + 2*bisel + holgura_movil
+def caja():
+    return (cq.Workplane()
+            .rect(largo_base/2,ancho_caja)
+            .extrude(alto_caja)
+            .chamfer(bisel)
+            .copyWorkplane(cq.Workplane("YZ"))
+            .center(0,borde_caja)
+            .polyline([(0,0),
+                       (ancho_base_foto/2+holgura_movil,0),
+                       (ancho_base_foto/2+holgura_movil,alto_base+alto_cubre+bisel+holgura_justa+holgura_movil),
+                       (ancho_base_foto/2+holgura_movil-espesor_garra,alto_base+alto_cubre+bisel+holgura_justa+holgura_movil),
+                       (ancho_base_foto/2+holgura_movil-espesor_garra-2*bisel,alto_base+alto_cubre+bisel+holgura_justa+holgura_movil),
+                       (ancho_base_foto/2+holgura_movil-espesor_garra-2*bisel,alto_base+alto_cubre+bisel+holgura_justa+holgura_movil-bisel+alto_cortina+2*bisel),
+                       (0,alto_base+alto_cubre+bisel+holgura_justa+holgura_movil-bisel+alto_cortina+2*bisel),
+                       ])
+            .mirrorY()
+            .cutThruAll()
+            # acople
+            .faces(">Z")
+            .workplane()
+            .circle(d_exterior_acople/2)
+            .extrude(h_acople)
+            .faces(">Z")
+            .circle(d_exterior_acople/2-espesor_acople)
+            .cutBlind('next')
             )
 
 extra_alto=0
@@ -121,7 +152,9 @@ asm.add(cubre(), name="cubre_fotografico",
 asm.add(cortina(), name="cortina",
         color=cq.Color("blue"),
         loc=cq.Location(cq.Vector(-largo_base/4,0,alto_base+alto_cubre+2*extra_alto)))
-
+asm.add(caja(), name="caja",
+        color=cq.Color("orange"),
+        loc=cq.Location(cq.Vector(-largo_base/4,0,-borde_caja)))
 
 #asm.add(cortina(), name="cortina", color=cq.Color("blue"), loc=cq.Location(cq.Vector(-.25*borde_foto,0,a_placa_foto*2+alto_agarre/2)))
 #asm.add(cuerpo(), name="cuerpo", color=cq.Color("orange"), loc=cq.Location(cq.Vector((largo_cuerpo/2-borde_foto/2),0,alto_cuerpo/2-a_placa_foto)))
