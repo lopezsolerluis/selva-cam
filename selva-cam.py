@@ -19,7 +19,7 @@ holgura_justa = .2
 holgura_movil = .3
 ancho_muesca = 10
 borde_caja = 8
-ancho_traba = 2
+ancho_traba = 4
 margen_agujeritos = 5
 
 largo_base = 2*lado_foto+4*borde_foto
@@ -30,7 +30,7 @@ xAgujero = lado_foto/2+borde_foto
 largo_caja = largo_base/2
 ancho_caja = ancho_base_foto + 2*borde_caja
 alto_caja = 2*borde_caja + alto_base + alto_cubre + alto_cortina + 2*bisel + holgura_movil
-largo_cortina = largo_base/2+borde_foto-ancho_traba
+largo_cortina = largo_base/2+ancho_traba
 
 def base(alto,ancho):
     return(cq.Workplane()
@@ -75,7 +75,7 @@ def base_foto():
             )
 
 def cubre(foto=False):
-    resultado = (base(alto_cubre,ancho_base_cubre)
+    return (base(alto_cubre,ancho_base_cubre)
                  .copyWorkplane(cq.Workplane("YZ"))
                  .split(keepTop=True, keepBottom=False)
                  .copyWorkplane(cq.Workplane("YZ"))
@@ -107,16 +107,6 @@ def cubre(foto=False):
                  .mirrorY()
                  .extrude(largo_base/4,both=True)
                  )
-    if foto:
-        alto_traba = alto_cortina/2 + 4*bisel-holgura_justa
-        resultado = (resultado
-                     .faces("<X")
-                     .workplane()
-                     .center(0,alto_traba/2)
-                     .rect(ancho_cortina+2*holgura_movil,alto_traba)
-                     .extrude(-ancho_traba)
-                    )
-    return resultado
 
 def cortina():
     return (cq.Workplane()
@@ -135,6 +125,14 @@ def cortina():
                        ])
             .mirrorY()
             .extrude(-largo_cortina)
+            .faces(">X")
+            .workplane()
+            .center(0,alto_cortina/2+bisel-holgura_justa)
+            .lineTo(ancho_cortina/2-2*bisel,0)
+            .threePointArc((0,3*borde_caja),
+                           (-(ancho_cortina/2-2*bisel),0))
+            .close()
+            .extrude(-ancho_traba)
             )
 
 def caja():
@@ -176,12 +174,12 @@ asm.add(base_foto(), name="base", color=cq.Color("red"))
 asm.add(cubre(), name="cubre_translucido",
         color=cq.Color("green"),
         loc=cq.Location(cq.Vector(0,0,alto_base+extra_alto)))
-asm.add(cubre(True), name="cubre_fotografico",
+asm.add(cubre(), name="cubre_fotografico",
         color=cq.Color("cyan"),
         loc=cq.Location(cq.Vector(-largo_base/2,0,alto_base+extra_alto)))
 asm.add(cortina(), name="cortina",
         color=cq.Color("blue"),
-        loc=cq.Location(cq.Vector(-(largo_base-largo_cortina)/2+ancho_traba,0,alto_base+alto_cubre+2*extra_alto)))
+        loc=cq.Location(cq.Vector(-(largo_base-largo_cortina)/2,0,alto_base+alto_cubre+2*extra_alto)))
 asm.add(caja(), name="caja",
         color=cq.Color("orange"),
         loc=cq.Location(cq.Vector(-largo_base/4,0,-borde_caja)))
