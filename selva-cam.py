@@ -19,9 +19,11 @@ holgura_justa = .2
 holgura_movil = .3
 ancho_garras = 10
 borde_caja = 8
-ancho_traba = 4
+ancho_traba = 1
 ancho_tope = 3
 margen_agujeritos = 5
+base_perilla = 20
+tope_perilla = 30
 
 largo_base = 2*lado_foto+4*borde_foto
 ancho_base_foto = lado_foto+2*borde_foto+2*espesor_garra
@@ -33,6 +35,8 @@ ancho_caja = ancho_base_foto + 2*borde_caja
 alto_caja = 2*borde_caja + alto_base + alto_cubre + alto_cortina + 2*bisel + holgura_movil
 largo_cortina = largo_base/2+ancho_traba-ancho_tope
 alto_traba = alto_cortina+2*bisel+holgura_movil
+ancho_perilla = borde_foto-ancho_traba
+alto_perilla = alto_cortina + alto_traba + 5*bisel
 
 def base(alto,ancho):
     return(cq.Workplane()
@@ -137,12 +141,18 @@ def cortina():
             .extrude(-largo_cortina)
             .faces(">X")
             .workplane()
-            .center(0,alto_traba/2)
-            .lineTo(ancho_cortina/2-2*bisel,0)
-            .threePointArc((0,3*borde_caja),
-                           (-(ancho_cortina/2-2*bisel),0))
-            .close()
+            .center(0,(alto_traba+borde_caja)/2-2*holgura_justa)
+            .rect(ancho_cortina-4*bisel,borde_caja)
             .extrude(-ancho_traba)
+            .faces(">X").edges("<Z")
+            .workplane(centerOption="CenterOfMass")
+            .center(0,alto_perilla/2)
+            .rect(base_perilla,alto_perilla)
+            .workplane(offset=ancho_perilla)
+            .rect(tope_perilla,alto_perilla)
+            .loft(combine=True)
+            .faces(">X").edges("|Z")
+            .fillet(bisel)
             )
 
 def caja():
@@ -190,9 +200,9 @@ asm.add(cubre(True), name="cubre_fotografico",
 asm.add(cortina(), name="cortina",
         color=cq.Color("blue"),
         loc=cq.Location(cq.Vector(-(largo_base-largo_cortina)/2+ancho_tope,0,alto_base+alto_cubre+2*extra_alto)))
-# asm.add(caja(), name="caja",
-#         color=cq.Color("orange"),
-#         loc=cq.Location(cq.Vector(-largo_base/4,0,-borde_caja)))
+asm.add(caja(), name="caja",
+        color=cq.Color("orange"),
+        loc=cq.Location(cq.Vector(-largo_base/4,0,-borde_caja)))
 
 show_object(asm)
 # show_object(base_foto())
