@@ -200,18 +200,20 @@ def caja():
             )
 
 extra_alto=0
+explo = 0 #1.3
 asm = cq.Assembly()
 
-asm.add(base_foto(), name="base", color=cq.Color("red"))
+asm.add(base_foto(), name="base", color=cq.Color("red"),
+        loc=cq.Location(cq.Vector(largo_base/2*explo,0,0)))
 asm.add(cubre(False), name="cubre_translucido",
         color=cq.Color("green"),
-        loc=cq.Location(cq.Vector(0,0,alto_base+extra_alto)))
+        loc=cq.Location(cq.Vector(largo_base/2*explo,0,alto_base+extra_alto+6*alto_base*explo)))
 asm.add(cubre(True), name="cubre_fotografico",
         color=cq.Color("cyan"),
-        loc=cq.Location(cq.Vector(-largo_base/2,0,alto_base+extra_alto)))
+        loc=cq.Location(cq.Vector(-largo_base/2+largo_base/2*explo,0,alto_base+extra_alto+12*alto_base*explo)))
 asm.add(cortina(), name="cortina",
         color=cq.Color("blue"),
-        loc=cq.Location(cq.Vector(-(largo_base-largo_cortina)/2+ancho_tope,0,alto_base+alto_cubre+2*extra_alto)))
+        loc=cq.Location(cq.Vector(-(largo_base-largo_cortina)/2+ancho_tope+largo_base*.9*explo,0,alto_base+alto_cubre+2*extra_alto+12*alto_base*explo)))
 asm.add(caja(), name="caja",
         color=cq.Color("orange"),
         loc=cq.Location(cq.Vector(-largo_base/4,0,-borde_caja)))
